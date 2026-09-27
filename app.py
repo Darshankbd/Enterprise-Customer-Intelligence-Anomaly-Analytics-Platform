@@ -36,6 +36,41 @@ def get_db():
 def index():
     return render_template("index.html")
 
+@app.route("/api/auth/login", methods=["POST"])
+def auth_login():
+    data = request.get_json() or {}
+    email = data.get("email", "").strip().lower()
+    password = data.get("password", "").strip()
+    is_demo = data.get("is_demo", False)
+
+    # 1-Click Demo or valid login
+    if is_demo or (email in ["darshan@enterprise.ai", "admin@enterprise.ai", "admin", "darshan"] and (password in ["password123", "analyst2026", "admin", "darshan"] or not password)):
+        return jsonify({
+            "status": "success",
+            "user": {
+                "name": "Darshan K B",
+                "role": "Lead Data Analyst",
+                "email": "darshan@enterprise.ai",
+                "avatar": "DK"
+            }
+        })
+    elif email and password:
+        return jsonify({
+            "status": "success",
+            "user": {
+                "name": email.split("@")[0].capitalize(),
+                "role": "Executive Analyst",
+                "email": email,
+                "avatar": email[:2].upper()
+            }
+        })
+    else:
+        return jsonify({"status": "error", "message": "Invalid email or password."}), 401
+
+@app.route("/api/auth/logout", methods=["POST"])
+def auth_logout():
+    return jsonify({"status": "success", "message": "Successfully logged out."})
+
 @app.route("/api/metrics", methods=["GET"])
 def get_metrics():
     region = request.args.get("region", "All")

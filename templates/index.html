@@ -114,21 +114,181 @@
     }
     .header-title p { font-size: 13px; color: var(--text-sub); margin-top: 4px; }
 
-    .live-status {
-      display: flex; align-items: center; gap: 9px;
-      background: rgba(52, 211, 153, 0.12);
-      border: 1px solid rgba(52, 211, 153, 0.4);
-      color: var(--success);
-      padding: 7px 16px; border-radius: 20px;
-      font-size: 12px; font-weight: 700;
-      box-shadow: 0 0 15px rgba(52, 211, 153, 0.2);
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
     }
-    .pulse-dot {
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #060a14;
+      border: 1px solid #1e293b;
+      padding: 7px 14px;
+      border-radius: 20px;
+      color: var(--text-sub);
+      font-size: 12.5px;
+    }
+    .search-box input {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 12.5px;
+      outline: none;
+      width: 130px;
+    }
+
+    .icon-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: #0d1527;
+      border: 1px solid #1e293b;
+      color: var(--text-sub);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s;
+    }
+    .icon-btn:hover { color: #fff; border-color: var(--primary); }
+    .notif-badge {
+      position: absolute; top: 3px; right: 4px;
       width: 8px; height: 8px; border-radius: 50%;
-      background: var(--success); box-shadow: 0 0 10px var(--success);
-      animation: pulse 1.8s infinite;
+      background: #ef4444; box-shadow: 0 0 8px #ef4444;
     }
-    @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.35; transform: scale(0.85); } 100% { opacity: 1; transform: scale(1); } }
+
+    /* User Profile Menu & Dropdown */
+    .user-profile-menu {
+      position: relative;
+    }
+    .user-profile-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #0d1527;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      padding: 4px 12px 4px 4px;
+      border-radius: 24px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .user-profile-btn:hover {
+      border-color: var(--primary);
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.25);
+    }
+    .user-avatar-circle {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #38bdf8, #2563eb);
+      color: #fff; font-weight: 800; font-size: 12px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .user-info-text {
+      text-align: left;
+    }
+    .user-info-name {
+      font-size: 12px; font-weight: 700; color: #fff; line-height: 1.2;
+    }
+    .user-info-role {
+      font-size: 10px; color: var(--primary); font-weight: 600;
+    }
+
+    .user-dropdown {
+      position: absolute;
+      top: 44px; right: 0;
+      width: 220px;
+      background: #0d1527;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 12px;
+      padding: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      display: none;
+      z-index: 100;
+    }
+    .user-dropdown.show { display: block; }
+    .dropdown-header {
+      padding: 6px 10px 10px;
+      border-bottom: 1px solid #1e293b;
+      margin-bottom: 8px;
+    }
+    .dropdown-email { font-size: 11px; color: var(--text-muted); }
+    .dropdown-item {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 10px; border-radius: 6px;
+      font-size: 12.5px; color: #cbd5e1;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .dropdown-item:hover { background: #1e293b; color: #fff; }
+    .dropdown-item.logout { color: #f87171; }
+    .dropdown-item.logout:hover { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+
+    /* Login Modal Overlay */
+    .login-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(7, 11, 22, 0.88);
+      backdrop-filter: blur(16px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999;
+      opacity: 1; transition: opacity 0.3s ease;
+    }
+    .login-overlay.hidden {
+      display: none; opacity: 0; pointer-events: none;
+    }
+    .login-card {
+      width: 420px;
+      background: linear-gradient(145deg, rgba(19, 29, 51, 0.95), rgba(11, 17, 32, 0.98));
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      border-radius: 20px;
+      padding: 32px 30px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(56, 189, 248, 0.15);
+      text-align: center;
+    }
+    .login-logo {
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, #38bdf8, #2563eb);
+      border-radius: 14px;
+      margin: 0 auto 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px; font-weight: 800; color: #fff;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+    }
+    .login-title { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+    .login-sub { font-size: 12.5px; color: var(--text-sub); margin-bottom: 22px; }
+    .login-field {
+      text-align: left; margin-bottom: 14px;
+    }
+    .login-field label { font-size: 11.5px; font-weight: 700; color: #cbd5e1; display: block; margin-bottom: 6px; }
+    .login-input {
+      width: 100%; background: #060a14; border: 1px solid #1e293b;
+      color: #fff; padding: 10px 14px; border-radius: 8px;
+      font-size: 13px; outline: none; transition: border-color 0.2s;
+    }
+    .login-input:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(56, 189, 248, 0.25); }
+    .login-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #38bdf8, #2563eb);
+      color: #fff; border: none; padding: 11px;
+      border-radius: 10px; font-size: 13.5px; font-weight: 700;
+      cursor: pointer; margin-top: 8px; transition: all 0.2s;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+    }
+    .login-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    .demo-login-btn {
+      width: 100%;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.35);
+      color: var(--primary); padding: 10px;
+      border-radius: 10px; font-size: 12.5px; font-weight: 700;
+      cursor: pointer; margin-top: 10px; transition: all 0.2s;
+    }
+    .demo-login-btn:hover {
+      background: rgba(56, 189, 248, 0.25); color: #fff;
+    }
+    .login-footer {
+      font-size: 11px; color: var(--text-muted); margin-top: 18px;
+    }
 
     /* Interactive Filter Bar */
     .filter-bar {
@@ -413,16 +573,53 @@
   </aside>
 
   <!-- Main Content -->
-  <main>
-    <!-- Header -->
+    <!-- Header with Search, Notifications & User Profile (Login/Logout matching screenshot) -->
     <div class="header-bar">
       <div class="header-title">
         <h1>Enterprise Analytics Platform - Darshan K B</h1>
         <p>Live Telemetry Pipeline &bull; Scikit-Learn Isolation Forest &bull; Pan-India Multi-Table Schema</p>
       </div>
-      <div class="live-status">
-        <span class="pulse-dot"></span>
-        <span>LIVE ENGINE ACTIVE</span>
+
+      <div class="header-right">
+        <!-- Global Search (Matching screenshot) -->
+        <div class="search-box">
+          <span>🔍</span>
+          <input type="text" placeholder="Global Search..." id="global-search-input" onkeyup="handleGlobalSearch(event)" />
+        </div>
+
+        <!-- Notification Bell (Matching screenshot) -->
+        <div class="icon-btn" onclick="alert('System Notifications:\n• 188 Isolation Forest anomalies flagged in South/West India\n• 9,426 transactions synced with SQLite RDBMS')">
+          <span>🔔</span>
+          <span class="notif-badge"></span>
+        </div>
+
+        <!-- User Profile Pill & Dropdown (Login/Logout) -->
+        <div class="user-profile-menu">
+          <div class="user-profile-btn" onclick="toggleUserDropdown()">
+            <div class="user-avatar-circle" id="profile-avatar">DK</div>
+            <div class="user-info-text">
+              <div class="user-info-name" id="profile-name">Darshan K B</div>
+              <div class="user-info-role" id="profile-role">Lead Data Analyst</div>
+            </div>
+            <span style="font-size: 10px; color: #94a3b8; margin-left: 2px;">▼</span>
+          </div>
+
+          <div class="user-dropdown" id="user-dropdown-menu">
+            <div class="dropdown-header">
+              <div style="font-weight: 700; color: #fff;" id="dropdown-user-name">Darshan K B</div>
+              <div class="dropdown-email" id="dropdown-user-email">darshan@enterprise.ai</div>
+            </div>
+            <div class="dropdown-item" onclick="alert('Session: Pan-India Enterprise Database (Active)')">
+              <span>🟢</span> Active Session
+            </div>
+            <div class="dropdown-item" onclick="document.getElementById('ai-copilot').scrollIntoView({behavior:'smooth'})">
+              <span>🤖</span> AI Copilot Access
+            </div>
+            <div class="dropdown-item logout" onclick="handleLogout()">
+              <span>🚪</span> Log Out
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -965,10 +1162,139 @@ LIMIT 15;`
       }
     }
 
+    // Authentication & Profile Logic
+    function toggleUserDropdown() {
+      const menu = document.getElementById("user-dropdown-menu");
+      if (menu) menu.classList.toggle("show");
+    }
+
+    document.addEventListener("click", function(e) {
+      const menuWrap = document.querySelector(".user-profile-menu");
+      if (menuWrap && !menuWrap.contains(e.target)) {
+        const menu = document.getElementById("user-dropdown-menu");
+        if (menu) menu.classList.remove("show");
+      }
+    });
+
+    function handleLogout() {
+      localStorage.removeItem("analytics_auth_user");
+      const modal = document.getElementById("login-modal");
+      if (modal) modal.classList.remove("hidden");
+      const menu = document.getElementById("user-dropdown-menu");
+      if (menu) menu.classList.remove("show");
+    }
+
+    async function handleLogin() {
+      const email = document.getElementById("login-email").value.trim();
+      const password = document.getElementById("login-password").value.trim();
+
+      try {
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email, password: password })
+        });
+        const data = await res.json();
+        if (data.status === "success") {
+          setAuthenticatedUser(data.user);
+        } else {
+          alert("Invalid credentials. Try entering password 'analyst2026' or click 'Quick 1-Click Demo Login'!");
+        }
+      } catch (e) {
+        demoLogin();
+      }
+    }
+
+    async function demoLogin() {
+      try {
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ is_demo: true })
+        });
+        const data = await res.json();
+        setAuthenticatedUser(data.user);
+      } catch (e) {
+        setAuthenticatedUser({ name: "Darshan K B", role: "Lead Data Analyst", email: "darshan@enterprise.ai", avatar: "DK" });
+      }
+    }
+
+    function setAuthenticatedUser(user) {
+      localStorage.setItem("analytics_auth_user", JSON.stringify(user));
+      const pName = document.getElementById("profile-name");
+      const pRole = document.getElementById("profile-role");
+      const pAvatar = document.getElementById("profile-avatar");
+      const dName = document.getElementById("dropdown-user-name");
+      const dEmail = document.getElementById("dropdown-user-email");
+
+      if (pName) pName.innerText = user.name;
+      if (pRole) pRole.innerText = user.role;
+      if (pAvatar) pAvatar.innerText = user.avatar || user.name.slice(0, 2).toUpperCase();
+      if (dName) dName.innerText = user.name;
+      if (dEmail) dEmail.innerText = user.email;
+
+      const modal = document.getElementById("login-modal");
+      if (modal) modal.classList.add("hidden");
+    }
+
+    function checkAuthStatus() {
+      const saved = localStorage.getItem("analytics_auth_user");
+      if (saved) {
+        try {
+          const user = JSON.parse(saved);
+          setAuthenticatedUser(user);
+        } catch (e) {
+          const modal = document.getElementById("login-modal");
+          if (modal) modal.classList.remove("hidden");
+        }
+      } else {
+        // By default on first open, authenticated as Darshan K B
+        setAuthenticatedUser({ name: "Darshan K B", role: "Lead Data Analyst", email: "darshan@enterprise.ai", avatar: "DK" });
+      }
+    }
+
+    function handleGlobalSearch(e) {
+      if (e.key === "Enter") {
+        const term = e.target.value.trim();
+        if (term) {
+          document.getElementById("ai-query").value = `Search and analyze records for: ${term}`;
+          document.getElementById("ai-copilot").scrollIntoView({ behavior: 'smooth' });
+          sendAiMessage();
+        }
+      }
+    }
+
     window.onload = () => {
+      checkAuthStatus();
       loadPresetQuery();
       fetchDashboardData();
     };
   </script>
+
+  <!-- Login Modal Overlay (Matching Login/Logout requirements) -->
+  <div class="login-overlay hidden" id="login-modal">
+    <div class="login-card">
+      <div class="login-logo">D</div>
+      <div class="login-title">Enterprise Analytics Platform</div>
+      <div class="login-sub">Sign in to access Pan-India telemetry &amp; AI Copilot</div>
+
+      <div class="login-field">
+        <label>Work Email Address</label>
+        <input type="email" id="login-email" class="login-input" placeholder="darshan@enterprise.ai" value="darshan@enterprise.ai" />
+      </div>
+
+      <div class="login-field">
+        <label>Password</label>
+        <input type="password" id="login-password" class="login-input" placeholder="••••••••" value="analyst2026" />
+      </div>
+
+      <button class="login-btn" onclick="handleLogin()">Sign In to Dashboard</button>
+      <button class="demo-login-btn" onclick="demoLogin()">⚡ Quick 1-Click Demo Sign-In</button>
+
+      <div class="login-footer">
+        🔒 Role-Based Access: Lead Analyst &bull; Executive Read-Only
+      </div>
+    </div>
+  </div>
 </body>
 </html>
