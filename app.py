@@ -94,23 +94,33 @@ def get_metrics():
     if cust_where:
         cust_where = "WHERE " + cust_where
 
-    # 1. High-level KPIs
-    kpi_query = f"""
+    # 1. High-level KPIs (Separated to prevent join fanout)
+    cust_query = f"""
     SELECT 
-        COUNT(DISTINCT c.customer_id) as total_customers,
+        COUNT(c.customer_id) as total_customers,
         SUM(c.is_churned) as churned_customers,
-        ROUND(100.0 * SUM(c.is_churned) / NULLIF(COUNT(DISTINCT c.customer_id), 0), 2) as churn_rate_pct,
+        ROUND(100.0 * SUM(c.is_churned) / NULLIF(COUNT(c.customer_id), 0), 1) as churn_rate_pct
+    FROM customers c
+    {cust_where}
+    """
+    cursor.execute(cust_query, params)
+    cust_kpi = dict(cursor.fetchone())
+
+    tx_query = f"""
+    SELECT 
         COUNT(t.transaction_id) as total_tx,
         ROUND(SUM(CASE WHEN t.status = 'Completed' AND t.amount > 0 THEN t.amount ELSE 0 END), 2) as net_revenue,
         ROUND(AVG(CASE WHEN t.status = 'Completed' AND t.amount > 0 THEN t.amount ELSE 0 END), 2) as aov,
         ROUND(AVG(t.latency_ms), 0) as avg_latency,
         SUM(CASE WHEN t.amount > 1000 OR t.latency_ms > 2500 THEN 1 ELSE 0 END) as anomaly_count
-    FROM customers c
-    LEFT JOIN transactions t ON c.customer_id = t.customer_id
+    FROM transactions t
+    JOIN customers c ON t.customer_id = c.customer_id
     {cust_where}
     """
-    cursor.execute(kpi_query, params)
-    kpi_res = dict(cursor.fetchone())
+    cursor.execute(tx_query, params)
+    tx_kpi = dict(cursor.fetchone())
+
+    kpi_res = {**cust_kpi, **tx_kpi}
 
     # 2. Monthly Revenue Trajectory
     monthly_where = f"WHERE t.status = 'Completed' AND t.amount > 0"
