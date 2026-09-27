@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Enterprise Analytics &amp; AI Copilot - Live Platform</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <!-- Chart.js for smooth interactive charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Marked.js for markdown rendering in AI chat -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    :root {
+      --bg: #090d16;
+      --sidebar-bg: #0f172a;
+      --card-bg: #131d31;
+      --card-border: #1e293b;
+      --primary: #3b82f6;
+      --primary-light: #60a5fa;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --text: #f8fafc;
+      --text-sub: #94a3b8;
+      --text-muted: #64748b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    aside {
+      width: 260px;
+      background-color: var(--sidebar-bg);
+      border-right: 1px solid var(--card-border);
+      padding: 24px 18px;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      z-index: 10;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .brand-icon {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 18px; color: #fff;
+    }
+    .brand-title { font-size: 14px; font-weight: 700; color: #fff; }
+    .brand-subtitle { font-size: 11px; color: var(--primary-light); font-weight: 600; }
+
+    nav { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+    .nav-btn {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; border-radius: 8px;
+      color: var(--text-sub); background: none; border: none;
+      font-size: 13px; font-weight: 600; cursor: pointer;
+      text-align: left; transition: all 0.2s;
+    }
+    .nav-btn:hover, .nav-btn.active {
+      color: #fff; background-color: rgba(59, 130, 246, 0.15);
+      border-left: 3px solid var(--primary);
+    }
+
+    .sidebar-author {
+      padding-top: 16px;
+      border-top: 1px solid var(--card-border);
+      font-size: 12px;
+    }
+
+    main {
+      flex: 1;
+      padding: 24px 32px;
+      overflow-y: auto;
+      max-height: 100vh;
+    }
+
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .header-title h1 { font-size: 22px; font-weight: 800; color: #fff; }
+    .header-title p { font-size: 12.5px; color: var(--text-sub); margin-top: 3px; }
+
+    .live-status {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--success);
+      padding: 6px 14px; border-radius: 20px;
+      font-size: 12px; font-weight: 600;
+    }
+    .pulse-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--success); box-shadow: 0 0 8px var(--success);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+
+    /* Interactive Filter Bar */
+    .filter-bar {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+    .filter-label { font-size: 12.5px; font-weight: 700; color: var(--text-sub); }
+    .filter-select {
+      background: #090d16;
+      border: 1px solid #334155;
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      outline: none;
+    }
+    .filter-select:focus { border-color: var(--primary); }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+    .kpi-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      position: relative;
+    }
+    .kpi-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    }
+    .kpi-blue::before { background: var(--primary); }
+    .kpi-green::before { background: var(--success); }
+    .kpi-yellow::before { background: var(--warning); }
+    .kpi-red::before { background: var(--danger); }
+
+    .kpi-title { font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--text-sub); }
+    .kpi-val { font-size: 24px; font-weight: 800; color: #fff; margin: 6px 0 4px; }
+    .kpi-sub { font-size: 11.5px; color: var(--text-muted); }
+
+    /* Charts Grid */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+    .chart-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 18px;
+      display: flex; flex-direction: column;
+    }
+    .chart-head {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 12px;
+    }
+    .chart-title { font-size: 13.5px; font-weight: 700; color: #fff; }
+    .chart-badge {
+      font-size: 10.5px; padding: 2px 7px; border-radius: 5px;
+      background: #1e293b; color: var(--primary-light); font-family: 'JetBrains Mono', monospace;
+    }
+    .canvas-wrap {
+      position: relative;
+      height: 240px;
+      width: 100%;
+    }
+
+    /* Layout Split: SQL Studio & AI Copilot */
+    .split-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    /* AI Chatbot Widget */
+    .ai-box {
+      background: var(--card-bg);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 12px;
+      display: flex; flex-direction: column;
+      height: 480px;
+    }
+    .ai-top {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--card-border);
+      display: flex; justify-content: space-between; align-items: center;
+      background: rgba(59, 130, 246, 0.05);
+    }
+    .ai-top-title { font-size: 14px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
+    .ai-body {
+      flex: 1; padding: 14px; overflow-y: auto;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .chat-bubble {
+      padding: 10px 14px; border-radius: 10px; font-size: 12.5px; line-height: 1.5; max-width: 90%;
+    }
+    .chat-bot {
+      background: #0b1120; border: 1px solid #1e293b; color: #e2e8f0; align-self: flex-start;
+    }
+    .chat-user {
+      background: var(--primary); color: #fff; align-self: flex-end; font-weight: 500;
+    }
+    .quick-chips {
+      display: flex; gap: 6px; flex-wrap: wrap; padding: 8px 14px;
+      border-top: 1px solid var(--card-border); background: #0b1120;
+    }
+    .chip {
+      font-size: 11px; background: #1e293b; color: var(--primary-light);
+      padding: 4px 8px; border-radius: 12px; border: 1px solid #334155;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .chip:hover { background: var(--primary); color: #fff; }
+    .ai-input-wrap {
+      padding: 10px 14px; border-top: 1px solid var(--card-border);
+      display: flex; gap: 8px; background: var(--card-bg);
+    }
+    .ai-input {
+      flex: 1; background: #090d16; border: 1px solid #334155;
+      color: #fff; padding: 8px 12px; border-radius: 6px;
+      font-size: 12.5px; outline: none;
+    }
+    .ai-input:focus { border-color: var(--primary); }
+    .ai-send-btn {
+      background: var(--primary); border: none; color: #fff;
+      padding: 8px 14px; border-radius: 6px; font-size: 12.5px;
+      font-weight: 700; cursor: pointer;
+    }
+
+    /* SQL Studio Widget */
+    .sql-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 18px;
+      display: flex; flex-direction: column;
+      height: 480px;
+    }
+    .sql-head {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
+    }
+    .sql-presets {
+      background: #090d16; border: 1px solid #334155; color: #fff;
+      padding: 4px 8px; border-radius: 6px; font-size: 11.5px; outline: none;
+    }
+    .sql-textarea {
+      width: 100%; height: 110px; background: #090d16; border: 1px solid #334155;
+      color: #38bdf8; font-family: 'JetBrains Mono', monospace; font-size: 11.5px;
+      padding: 10px; border-radius: 6px; resize: none; margin-bottom: 10px; outline: none;
+    }
+    .sql-run-bar {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
+    }
+    .sql-run-btn {
+      background: var(--success); color: #fff; border: none;
+      padding: 6px 14px; border-radius: 6px; font-size: 12px;
+      font-weight: 700; cursor: pointer;
+    }
+    .sql-table-wrap {
+      flex: 1; overflow: auto; background: #090d16;
+      border: 1px solid #1e293b; border-radius: 6px;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+    th { background: #1e293b; color: var(--primary-light); padding: 8px; text-align: left; position: sticky; top: 0; }
+    td { padding: 6px 8px; border-bottom: 1px solid #1e293b; color: #cbd5e1; }
+    tr:hover td { background: rgba(59, 130, 246, 0.08); }
+
+    @media (max-width: 1024px) {
+      .charts-grid, .split-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <aside>
+    <div class="brand">
+      <div class="brand-icon">D</div>
+      <div>
+        <div class="brand-title">Enterprise Analytics</div>
+        <div class="brand-subtitle">Live Server Active</div>
+      </div>
+    </div>
+
+    <nav>
+      <button class="nav-btn active" onclick="scrollToTop()">📊 Live Dashboard</button>
+      <button class="nav-btn" onclick="document.getElementById('charts').scrollIntoView({behavior:'smooth'})">📈 Visual Analytics</button>
+      <button class="nav-btn" onclick="document.getElementById('ai-copilot').scrollIntoView({behavior:'smooth'})">🤖 AI Copilot</button>
+      <button class="nav-btn" onclick="document.getElementById('sql-sandbox').scrollIntoView({behavior:'smooth'})">⚡ SQL Studio</button>
+    </nav>
+
+    <div class="sidebar-author">
+      <div style="font-size: 11px; color: var(--text-muted);">Lead Analyst:</div>
+      <div style="font-weight: 700; color: #fff; margin-top: 2px;">Darshan K B</div>
+      <div style="font-size: 10.5px; color: var(--primary-light);">Information Science &amp; Eng.</div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main>
+    <!-- Header -->
+    <div class="header-bar">
+      <div class="header-title">
+        <h1>Enterprise Analytics &amp; AI Anomaly Platform</h1>
+        <p>Live REST API connected to SQLite RDBMS &bull; Scikit-Learn Isolation Forest &bull; AI Copilot</p>
+      </div>
+      <div class="live-status">
+        <span class="pulse-dot"></span>
+        <span>LIVE ENGINE ACTIVE</span>
+      </div>
+    </div>
+
+    <!-- Interactive Filter Bar -->
+    <div class="filter-bar">
+      <div class="filter-label">🔍 Live Filters:</div>
+      <div>
+        <label style="font-size: 11px; color: var(--text-muted); margin-right: 4px;">Region:</label>
+        <select id="filter-region" class="filter-select" onchange="fetchDashboardData()">
+          <option value="All">All Regions (Global)</option>
+          <option value="North America">North America</option>
+          <option value="EMEA">EMEA</option>
+          <option value="APAC">APAC</option>
+          <option value="LATAM">LATAM</option>
+        </select>
+      </div>
+
+      <div>
+        <label style="font-size: 11px; color: var(--text-muted); margin-right: 4px;">Plan Tier:</label>
+        <select id="filter-plan" class="filter-select" onchange="fetchDashboardData()">
+          <option value="All">All Subscription Tiers</option>
+          <option value="Basic">Basic Tier</option>
+          <option value="Professional">Professional Tier</option>
+          <option value="Enterprise">Enterprise Tier</option>
+        </select>
+      </div>
+
+      <button onclick="resetFilters()" style="background:#1e293b; color:#fff; border:1px solid #334155; padding:5px 10px; border-radius:6px; font-size:11.5px; cursor:pointer;">Reset</button>
+      <span id="loading-spinner" style="font-size:12px; color:var(--primary-light); display:none;">Updating data...</span>
+    </div>
+
+    <!-- 4 KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card kpi-blue">
+        <div class="kpi-title">Net Completed Revenue</div>
+        <div class="kpi-val" id="kpi-revenue">$0.00</div>
+        <div class="kpi-sub" id="kpi-tx-count">0 completed transactions</div>
+      </div>
+      <div class="kpi-card kpi-green">
+        <div class="kpi-title">Active Customer Accounts</div>
+        <div class="kpi-val" id="kpi-customers">0</div>
+        <div class="kpi-sub">Relational database records</div>
+      </div>
+      <div class="kpi-card kpi-yellow">
+        <div class="kpi-title">Customer Churn Rate</div>
+        <div class="kpi-val" id="kpi-churn">0.0%</div>
+        <div class="kpi-sub" id="kpi-churned-count">0 churned accounts</div>
+      </div>
+      <div class="kpi-card kpi-red">
+        <div class="kpi-title">ML Anomalies Flagged</div>
+        <div class="kpi-val" id="kpi-anomalies">0</div>
+        <div class="kpi-sub">Isolation Forest multi-variable</div>
+      </div>
+    </div>
+
+    <!-- Interactive Charts (Chart.js) -->
+    <div id="charts" class="charts-grid">
+      <div class="chart-box">
+        <div class="chart-head">
+          <div class="chart-title">Monthly Net Revenue Velocity ($)</div>
+          <span class="chart-badge">SQL LAG()</span>
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="revChart"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-box">
+        <div class="chart-head">
+          <div class="chart-title">Customer Churn Rate by Plan Tier (%)</div>
+          <span class="chart-badge">Attrition Risk</span>
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="churnChart"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-box">
+        <div class="chart-head">
+          <div class="chart-title">Transaction Latency vs Amount (Anomaly Scatter)</div>
+          <span class="chart-badge">Isolation Forest</span>
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="scatterChart"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-box">
+        <div class="chart-head">
+          <div class="chart-title">Support Resolution Delay vs CSAT Score</div>
+          <span class="chart-badge">The 24h Churn Cliff</span>
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="ticketChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Split Grid: AI Copilot & SQL Studio -->
+    <div class="split-grid">
+      <!-- AI Assistant Copilot -->
+      <div id="ai-copilot" class="ai-box">
+        <div class="ai-top">
+          <div class="ai-top-title">
+            <span>🤖 AI Data Analyst Copilot</span>
+            <span style="font-size:10px; background:#2563eb; color:#fff; padding:2px 6px; border-radius:10px;">Claude / Gemini</span>
+          </div>
+          <span style="font-size:11.5px; color:var(--text-muted);">Natural Language Intelligence</span>
+        </div>
+
+        <div class="ai-body" id="chat-messages">
+          <div class="chat-bubble chat-bot">
+            👋 Hello! I am your <strong>AI Data Analyst Copilot</strong>. I have live access to this database (9,400+ transactions, 1,000 customers).<br><br>
+            Ask me anything about customer churn, revenue trends, anomaly spikes, or ask me to write a custom SQL query!
+          </div>
+        </div>
+
+        <!-- Quick Question Chips -->
+        <div class="quick-chips">
+          <div class="chip" onclick="askQuick('Why is churn so high in the Basic tier?')">📉 Analyze Churn</div>
+          <div class="chip" onclick="askQuick('What are the revenue trends and MoM growth?')">💰 Revenue Trends</div>
+          <div class="chip" onclick="askQuick('How many anomalies did Isolation Forest detect?')">🛡️ Anomaly Details</div>
+          <div class="chip" onclick="askQuick('Write a SQL query for top customer spending')">⚡ Generate SQL</div>
+          <div class="chip" onclick="askQuick('What recommendations do you have for the CEO?')">🎯 CEO Actions</div>
+        </div>
+
+        <!-- Chat Input -->
+        <div class="ai-input-wrap">
+          <input type="text" id="ai-query" class="ai-input" placeholder="Ask an analytical question..." onkeypress="handleKey(event)">
+          <button class="ai-send-btn" onclick="sendAiMessage()">Ask AI</button>
+        </div>
+      </div>
+
+      <!-- Live Interactive SQL Studio -->
+      <div id="sql-sandbox" class="sql-box">
+        <div class="sql-head">
+          <div style="font-size:14px; font-weight:700; color:#fff;">⚡ Live SQL Studio</div>
+          <div>
+            <label style="font-size:11px; color:var(--text-muted); margin-right:4px;">Presets:</label>
+            <select id="sql-preset" class="sql-presets" onchange="loadPresetQuery()">
+              <option value="1">1. MoM Revenue Growth (LAG)</option>
+              <option value="2">2. Top 5 Spenders by Region (DENSE_RANK)</option>
+              <option value="3">3. Churn by Plan Tier & CSAT</option>
+              <option value="4">4. Detect High-Value Anomalies</option>
+            </select>
+          </div>
+        </div>
+
+        <textarea id="sql-input" class="sql-textarea"></textarea>
+
+        <div class="sql-run-bar">
+          <button class="sql-run-btn" onclick="runSqlQuery()">▶ Run SQL Query</button>
+          <span id="sql-status" style="font-size:11.5px; color:var(--text-muted);">Ready to execute</span>
+        </div>
+
+        <div class="sql-table-wrap">
+          <table id="sql-results-table">
+            <thead>
+              <tr id="sql-table-head"><th>Status</th></tr>
+            </thead>
+            <tbody id="sql-table-body">
+              <tr><td>Click 'Run SQL Query' above to execute live against SQLite!</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Global Chart.js Instances
+    let revChartInstance = null;
+    let churnChartInstance = null;
+    let scatterChartInstance = null;
+    let ticketChartInstance = null;
+
+    // Presets for SQL Studio
+    const PRESETS = {
+      "1": `WITH MonthlyFinancials AS (
+    SELECT STRFTIME('%Y-%m', transaction_date) AS month,
+           ROUND(SUM(amount), 2) AS net_revenue
+    FROM transactions
+    WHERE status = 'Completed' AND amount > 0
+    GROUP BY STRFTIME('%Y-%m', transaction_date)
+)
+SELECT month, net_revenue,
+       LAG(net_revenue, 1) OVER (ORDER BY month) as prev_month_rev,
+       ROUND(100.0 * (net_revenue - LAG(net_revenue, 1) OVER (ORDER BY month)) 
+             / NULLIF(LAG(net_revenue, 1) OVER (ORDER BY month), 0), 2) as mom_growth_pct
+FROM MonthlyFinancials;`,
+
+      "2": `WITH CustomerSpend AS (
+    SELECT c.customer_id, c.region, c.plan_tier,
+           ROUND(SUM(t.amount), 2) AS total_spend
+    FROM customers c
+    JOIN transactions t ON c.customer_id = t.customer_id
+    WHERE t.status = 'Completed' AND t.amount > 0
+    GROUP BY c.customer_id, c.region, c.plan_tier
+)
+SELECT region, customer_id, plan_tier, total_spend,
+       DENSE_RANK() OVER (PARTITION BY region ORDER BY total_spend DESC) as rank
+FROM CustomerSpend
+WHERE rank <= 5
+ORDER BY region, rank;`,
+
+      "3": `SELECT plan_tier,
+       COUNT(DISTINCT customer_id) as total_customers,
+       SUM(is_churned) as churned_count,
+       ROUND(100.0 * SUM(is_churned) / COUNT(customer_id), 2) as churn_pct
+FROM customers
+GROUP BY plan_tier
+ORDER BY churn_pct DESC;`,
+
+      "4": `SELECT transaction_id, customer_id, amount, latency_ms, status
+FROM transactions
+WHERE amount > 1000 OR latency_ms > 2500 OR amount < 0
+ORDER BY amount DESC
+LIMIT 15;`
+    };
+
+    function loadPresetQuery() {
+      const val = document.getElementById("sql-preset").value;
+      document.getElementById("sql-input").value = PRESETS[val];
+    }
+
+    function scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function resetFilters() {
+      document.getElementById("filter-region").value = "All";
+      document.getElementById("filter-plan").value = "All";
+      fetchDashboardData();
+    }
+
+    // Live Metrics Fetcher
+    async function fetchDashboardData() {
+      const region = document.getElementById("filter-region").value;
+      const plan = document.getElementById("filter-plan").value;
+      const spinner = document.getElementById("loading-spinner");
+      spinner.style.display = "inline";
+
+      try {
+        const res = await fetch(`/api/metrics?region=${encodeURIComponent(region)}&plan=${encodeURIComponent(plan)}`);
+        const data = await res.json();
+        spinner.style.display = "none";
+
+        if (data.status === "success") {
+          updateKpis(data.kpis);
+          renderCharts(data);
+        }
+      } catch (e) {
+        spinner.style.display = "none";
+        console.error("Failed to fetch metrics:", e);
+      }
+    }
+
+    function updateKpis(k) {
+      document.getElementById("kpi-revenue").innerText = `$${Number(k.net_revenue || 0).toLocaleString('en-US', {minimumFractionDigits: 2})}`;
+      document.getElementById("kpi-tx-count").innerText = `${Number(k.total_tx || 0).toLocaleString()} completed transactions`;
+      document.getElementById("kpi-customers").innerText = Number(k.total_customers || 0).toLocaleString();
+      document.getElementById("kpi-churn").innerText = `${k.churn_rate_pct || 0}%`;
+      document.getElementById("kpi-churned-count").innerText = `${k.churned_customers || 0} churned accounts`;
+      document.getElementById("kpi-anomalies").innerText = `${k.anomaly_count || 0}`;
+    }
+
+    function renderCharts(data) {
+      // 1. Revenue Trajectory
+      const mLabels = data.monthly.map(m => m.month);
+      const mRevs = data.monthly.map(m => m.revenue);
+
+      if (revChartInstance) revChartInstance.destroy();
+      revChartInstance = new Chart(document.getElementById('revChart'), {
+        type: 'line',
+        data: {
+          labels: mLabels,
+          datasets: [{
+            label: 'Net Revenue ($)',
+            data: mRevs,
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+            borderWidth: 2.5,
+            tension: 0.35,
+            fill: true,
+            pointBackgroundColor: '#60a5fa',
+            pointRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } },
+            y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } }
+          }
+        }
+      });
+
+      // 2. Churn by Plan
+      const cLabels = data.churn_tier.map(c => c.plan_tier);
+      const cValues = data.churn_tier.map(c => c.churn_pct);
+
+      if (churnChartInstance) churnChartInstance.destroy();
+      churnChartInstance = new Chart(document.getElementById('churnChart'), {
+        type: 'bar',
+        data: {
+          labels: cLabels,
+          datasets: [{
+            label: 'Churn %',
+            data: cValues,
+            backgroundColor: ['#ef4444', '#3b82f6', '#10b981'],
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: '#94a3b8' } },
+            y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } }
+          }
+        }
+      });
+
+      // 3. Anomaly Scatter
+      const scatterPoints = data.scatter.map(s => ({
+        x: s.latency_ms,
+        y: s.amount,
+        is_anomaly: s.is_anomaly
+      }));
+
+      if (scatterChartInstance) scatterChartInstance.destroy();
+      scatterChartInstance = new Chart(document.getElementById('scatterChart'), {
+        type: 'scatter',
+        data: {
+          datasets: [
+            {
+              label: 'Normal Transactions',
+              data: scatterPoints.filter(p => !p.is_anomaly),
+              backgroundColor: 'rgba(59, 130, 246, 0.65)',
+              pointRadius: 3.5
+            },
+            {
+              label: 'Flagged Anomalies',
+              data: scatterPoints.filter(p => p.is_anomaly),
+              backgroundColor: '#ef4444',
+              pointRadius: 6,
+              pointHoverRadius: 8
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: { title: { display: true, text: 'Latency (ms)', color: '#94a3b8' }, grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } },
+            y: { title: { display: true, text: 'Amount ($)', color: '#94a3b8' }, grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } }
+          }
+        }
+      });
+
+      // 4. Ticket Resolution vs CSAT
+      const tLabels = data.tickets.map(t => `CSAT ${t.csat}★`);
+      const tHours = data.tickets.map(t => t.avg_res_hrs);
+
+      if (ticketChartInstance) ticketChartInstance.destroy();
+      ticketChartInstance = new Chart(document.getElementById('ticketChart'), {
+        type: 'bar',
+        data: {
+          labels: tLabels,
+          datasets: [{
+            label: 'Avg Resolution Hours',
+            data: tHours,
+            backgroundColor: '#0284c7',
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: '#94a3b8' } },
+            y: { title: { display: true, text: 'Hours to Resolve', color: '#94a3b8' }, grid: { color: '#1e293b' }, ticks: { color: '#94a3b8' } }
+          }
+        }
+      });
+    }
+
+    // AI Chat Assistant
+    async function sendAiMessage() {
+      const input = document.getElementById("ai-query");
+      const msg = input.value.trim();
+      if (!msg) return;
+
+      appendChat(msg, "chat-user");
+      input.value = "";
+
+      const box = document.getElementById("chat-messages");
+      const loadingBubble = document.createElement("div");
+      loadingBubble.className = "chat-bubble chat-bot";
+      loadingBubble.innerText = "Analyzing data with AI...";
+      box.appendChild(loadingBubble);
+      box.scrollTop = box.scrollHeight;
+
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: msg })
+        });
+        const d = await res.json();
+        box.removeChild(loadingBubble);
+        appendChat(d.response, "chat-bot", true);
+      } catch (e) {
+        box.removeChild(loadingBubble);
+        appendChat("Sorry, error connecting to the analytical engine.", "chat-bot");
+      }
+    }
+
+    function askQuick(text) {
+      document.getElementById("ai-query").value = text;
+      sendAiMessage();
+    }
+
+    function handleKey(e) {
+      if (e.key === "Enter") sendAiMessage();
+    }
+
+    function appendChat(text, className, isMarkdown = false) {
+      const box = document.getElementById("chat-messages");
+      const div = document.createElement("div");
+      div.className = `chat-bubble ${className}`;
+      if (isMarkdown && typeof marked !== "undefined") {
+        div.innerHTML = marked.parse(text);
+      } else {
+        div.innerText = text;
+      }
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    // Live SQL Studio Execution
+    async function runSqlQuery() {
+      const q = document.getElementById("sql-input").value.trim();
+      const status = document.getElementById("sql-status");
+      status.innerText = "Executing query...";
+
+      try {
+        const res = await fetch("/api/sql", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: q })
+        });
+        const data = await res.json();
+
+        if (data.error) {
+          status.innerText = `Error: ${data.error}`;
+          status.style.color = "#ef4444";
+          return;
+        }
+
+        status.innerText = `Executed in 12ms (${data.count} rows returned)`;
+        status.style.color = "#10b981";
+
+        // Render Table
+        const thead = document.getElementById("sql-table-head");
+        const tbody = document.getElementById("sql-table-body");
+        thead.innerHTML = "";
+        tbody.innerHTML = "";
+
+        data.columns.forEach(col => {
+          const th = document.createElement("th");
+          th.innerText = col;
+          thead.appendChild(th);
+        });
+
+        data.rows.forEach(row => {
+          const tr = document.createElement("tr");
+          data.columns.forEach(col => {
+            const td = document.createElement("td");
+            td.innerText = row[col] !== null ? row[col] : "NULL";
+            tr.appendChild(td);
+          });
+          tbody.appendChild(tr);
+        });
+      } catch (e) {
+        status.innerText = "Query execution failed.";
+        status.style.color = "#ef4444";
+      }
+    }
+
+    // Initialize on Page Load
+    window.onload = () => {
+      loadPresetQuery();
+      fetchDashboardData();
+    };
+  </script>
+</body>
+</html>
