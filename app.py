@@ -17,13 +17,18 @@ import json
 import datetime
 from flask import Flask, request, jsonify, render_template
 
-app = Flask(__name__)
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
+
+app = Flask(__name__, template_folder=TEMPLATES_DIR)
+
 DB_PATH = os.path.join(BASE_DIR, "data", "enterprise_analytics.db")
 
 def get_db():
-    conn = sqlite3.connect(DB_PATH)
+    try:
+        conn = sqlite3.connect(f"file:{DB_PATH}?mode=ro", uri=True)
+    except Exception:
+        conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
