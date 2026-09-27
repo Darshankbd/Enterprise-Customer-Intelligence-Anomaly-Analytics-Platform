@@ -8,6 +8,12 @@
 ![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-Machine%20Learning-orange?logo=scikitlearn)
 ![GenAI](https://img.shields.io/badge/AI-Claude%20%7C%20Gemini-green)
 
+<br/>
+
+<p align="center">
+  <img src="visualizations/dashboard_preview.jpg" alt="Enterprise Analytics & AI Dashboard Interface" width="95%" />
+</p>
+
 ---
 
 ## 📌 Executive Overview
