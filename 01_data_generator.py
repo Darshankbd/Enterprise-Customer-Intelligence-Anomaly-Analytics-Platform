@@ -69,10 +69,10 @@ def generate_enterprise_data():
     );
     """)
 
-    # Seed Customers
-    print("[2/4] Generating customer records...")
+    # Seed Customers (Pan-India Geographic Distribution)
+    print("[2/4] Generating customer records across Indian regions...")
     random.seed(42)
-    regions = ["North America", "EMEA", "APAC", "LATAM"]
+    regions = ["South India", "West India", "North India", "East India"]
     segments = ["Enterprise", "Mid-Market", "SMB", "Consumer"]
     plans = ["Basic", "Professional", "Enterprise"]
     start_date = datetime.date(2025, 1, 1)
@@ -94,9 +94,9 @@ def generate_enterprise_data():
 
     cursor.executemany("INSERT INTO customers VALUES (?, ?, ?, ?, ?, ?);", customers)
 
-    # Seed Transactions
+    # Seed Transactions (INR and Indian Payment Methods)
     print("[3/4] Generating transactions with realistic anomaly patterns...")
-    payment_methods = ["Credit Card", "Wire Transfer", "PayPal", "ACH Direct Debit"]
+    payment_methods = ["UPI", "Net Banking", "Credit Card", "Corporate NEFT/RTGS"]
     transactions = []
     tx_counter = 1
 
